@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlappyBird</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/sprites/yellowbird-upflap.png" type="image/x-icon">
+
+    <style>
+        body {
+            overflow: hidden;
+        }
+        body {
+            background-color: black;
+            background-image: url('https://github.com/samuelcust/flappy-bird-assets/blob/master/sprites/background-day.png?raw=true'); /* Path to the image file */
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-size: 35% auto;
+        }
+        img#bottom1{
+            position: absolute;
+            bottom: 0;
+            left: 64.7%;
+            width: 3.2%;
+            height: 34.3%;
+        }
+        img#bottom2{
+            position: absolute;
+            bottom: 0;
+            left: 64.7%;
+            width: 3.2%;
+            height: 34.3%;
+            visibility: hidden;
+        }
+        img#top1{
+            rotate: 180deg;
+            position: absolute;
+            top: 0;
+            left: 64.7%;
+            width: 3.2%;
+            height: 34.3%;
+        }
+        img#top2{
+            rotate: 180deg;
+            position: absolute;
+            top: 0;
+            left: 64.7%;
+            width: 3.2%;
+            height: 34.3%;
+            visibility: hidden;
+        }
+        img#bird{
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+        }
+        div#score {
+            visibility: hidden;
+            position: absolute;
+            top: 10%;
+            left: 51%;
+            transform: translateX(-50%);
+            z-index: 1;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            font-size: 48px;
+            text-shadow:
+                    -1px -1px 0 black,
+                    1px -1px 0 black,
+                    -1px  1px 0 black,
+                    1px  1px 0 black;
+        }
+        div#topScores {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            color: white;
+            font-family: "Marker Felt", fantasy;
+            font-size: 48px;
+            text-shadow:
+                    -1px -1px 0 black,
+                    1px -1px 0 black,
+                    -1px  1px 0 black,
+                    1px  1px 0 black;
+        }
+        img#instructions{
+            position: absolute;
+            top: 30%;
+            left: 45.6%;
+        }
+        img#gameOver{
+            visibility: hidden;
+            position: absolute;
+            top: 20%;
+            left: 45.6%;
+        }
+    </style>
+
+    <script src="vue.global.js"></script>
+</head>
+
+<body>
+
+<img id = "bottom1" src="https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/sprites/pipe-green.png" alt="q">
+<img id = "top1" src="https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/sprites/pipe-green.png" alt="q">
+<img id = "top2" src="https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/sprites/pipe-green.png" alt="q">
+<img id = "bottom2" src="https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/sprites/pipe-green.png" alt="q">
+<img id = "bird" src = "https://raw.githubusercontent.com/samuelcust/flappy-bird-assets/master/sprites/yellowbird-upflap.png" alt="q">
+<img id = "instructions" src="https://github.com/samuelcust/flappy-bird-assets/blob/master/sprites/message.png?raw=true" alt="q">
+<div id="score">0</div>
+<div id="topScores"></div>
+<img src="https://github.com/samuelcust/flappy-bird-assets/blob/master/sprites/gameover.png?raw=true" alt="" id="gameOver">
+
+<script id = "movePipe" type="module">
+    const { createApp } = Vue;
+    function initializeBird() {
+        const app = createApp({
+            data() {
+                return {
+                    velocity: 0,
+                }
+            },
+            methods: {
+                reduce: function() {
+                    if(this.velocity > - 1) {
+                        this.velocity = this.velocity - .025;
+                    }
+                }
+            }
+        });
+
+        return app.mount("#bird");
+    }
+    const birdApp = initializeBird();
+
+    let gameOver = false;
+    let first = true;
+    const time = 400;
+    let start =  48.5;
+    let speed = .08
+    let pipeInterval;
+    let gravityInterval;
+
+    function setGap(bottom, top) {
+        let gap = Math.random() * 15 + 17
+        let bias = Math.random()
+        bottom.style.height = 100 * bias - gap * bias + "%"
+        bias = 1 - bias;
+        top.style.height = 100 * bias - gap * bias + "%"
+    }
+    function movePipe(){
+        let bottom1 = document.getElementById("bottom1")
+        let top1 = document.getElementById("top1")
+        let bottom2 = document.getElementById("bottom2")
+        let top2 = document.getElementById("top2")
+        let current = parseFloat(bottom1.style.left) || 64.7;
+        let position = (current - speed)
+        start -= speed
+        let position2 = start
+        if(position > 32.3) {
+            bottom1.style.left = position + "%";
+            top1.style.left = position + "%";
+        }else{
+            bottom1.style.left = 64.7 + "%";
+            top1.style.left = 64.7 + "%";
+            let score = document.getElementById("score")
+            let numb = parseInt(score.innerText)
+            numb ++;
+            score.innerText = `${numb}`;
+            setGap(bottom1, top1)
+        }
+        if(position2 > 32.3) {
+            bottom2.style.left = position2 + "%";
+            top2.style.left = position2 + "%";
+        }else{
+            bottom2.style.left = 64.7 + "%";
+            top2.style.left = 64.7 + "%";
+            bottom2.style.visibility = "visible";
+            top2.style.visibility = "visible";
+            start = 64.7
+            let score = document.getElementById("score")
+            let numb = parseInt(score.innerText)
+            numb ++;
+            score.innerText = `${numb}`;
+            setGap(bottom2, top2)
+        }
+    }
+    function gravity(){
+        birdApp.reduce()
+        let bird = document.getElementById("bird")
+        let current = parseFloat(bird.style.bottom) || 50;
+        if(current > 1 && current <= 100) {
+            bird.style.bottom = (current + birdApp.velocity) + "%";
+        }else{
+            clearInterval(pipeInterval);
+            clearInterval(gravityInterval)
+            document.getElementById("gameOver").style.visibility = "visible";
+            setTimeout(()=> {
+                gameOver = true;
+            }, time);
+        }
+    }
+    function collision() {
+        let bottom1 = document.getElementById("bottom1");
+        let top1 = document.getElementById("top1");
+        let bottom2 = document.getElementById("bottom2");
+        let top2 = document.getElementById("top2");
+        let bird = document.getElementById("bird");
+
+        let birdTop = parseFloat(bird.style.bottom);
+
+        let bottom1Left = parseFloat(bottom1.style.left);
+        let bottom1Height = parseFloat(bottom1.style.height) || 34.3;
+
+        let top1Height = parseFloat(top1.style.height) || 34.3;
+
+        let bottom2Left = parseFloat(bottom2.style.left);
+        let bottom2Height = parseFloat(bottom2.style.height) || 34.3;
+
+        let top2Height = parseFloat(top2.style.height) || 34.3;
+
+        if (bottom1Left > 48.5 && bottom1Left < 51.5) {
+            let birdBottom = parseFloat(bird.style.bottom);
+            if (birdBottom < bottom1Height - 1.5 || 97.5 - birdTop < top1Height) {
+                clearInterval(pipeInterval);
+                clearInterval(gravityInterval);
+                document.getElementById("gameOver").style.visibility = "visible";
+                setTimeout(()=> {
+                    gameOver = true;
+                }, time);
+            }
+        }
+
+        if (bottom2Left > 48 && bottom2Left < 52) {
+            let birdBottom = parseFloat(bird.style.bottom);
+            if (birdBottom < bottom2Height - 1.5 || 97.5 - birdTop < top2Height) {
+                clearInterval(pipeInterval);
+                clearInterval(gravityInterval);
+                document.getElementById("gameOver").style.visibility = "visible";
+                setTimeout(()=> {
+                    gameOver = true;
+                }, time);
+            }
+        }
+    }
+
+    document.addEventListener("keydown", game);
+    function game(){
+        if (first) {
+            document.getElementById("instructions").style.visibility = "hidden"
+            document.getElementById("score").style.visibility = "visible"
+            pipeInterval = setInterval(movePipe, 10);
+            gravityInterval = setInterval(gravity, 10)
+            setInterval(collision, 10)
+            birdApp.velocity = .87
+            first = false;
+        } else {
+            birdApp.velocity = .87
+        }
+
+        if (gameOver) {
+            record().then(() => {
+                location.reload();
+            });
+        }
+    }
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, query, where, limit,  orderBy,getDocs, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDmiJ81c4Is0uICxROy2OImVcxk4zwg59s",
+        authDomain: "flappy-bird-high-s.firebaseapp.com",
+        databaseURL: "https://flappy-bird-high-s-default-rtdb.firebaseio.com",
+        projectId: "flappy-bird-high-s",
+        storageBucket: "flappy-bird-high-s.appspot.com",
+        messagingSenderId: "665380116585",
+        appId: "1:665380116585:web:e1a4e2945da801c52caaf8",
+        measurementId: "G-0MY8QK9RG0"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore (app);
+    function record() {
+        return new Promise((resolve, reject) => {
+            addDoc(collection(db, "High Scores"), {
+                score: parseInt(document.getElementById("score").innerText),
+            })
+                .then(() => {
+                    resolve();
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
+    }
+
+    const q = query(collection(db, "High Scores"), where("score", ">", 0), orderBy("score", "desc"), limit(9));
+    const querySnapshot = await getDocs(q);
+    let scoreboard = "Leaderboard:<br>";
+    let i = 1;
+    querySnapshot.forEach((doc) => {
+        scoreboard += "&nbsp;&nbsp;&nbsp;&nbsp;" + i + ". " + doc.data().score + "<br>";
+        i++;
+    });
+    document.getElementById("topScores").innerHTML = scoreboard;
+</script>
+
+</body>
+</html>
